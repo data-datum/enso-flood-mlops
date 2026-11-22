@@ -7,3 +7,7 @@ data/quarantine/*
 
 # Datos locales y artefactos generados
 data/
+
+# MLflow local tracking
+mlflow.db
+mlruns/
