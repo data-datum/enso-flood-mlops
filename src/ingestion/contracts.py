@@ -56,3 +56,27 @@ def validate_and_quarantine(
             .drop("_row_idx")
         )
         return schema.validate(clean_df)
+
+feature_store_schema = pa.DataFrameSchema(
+    columns={
+        "event_date": pa.Column(pl.Date, nullable=False),
+        "station_id": pa.Column(pl.Utf8, nullable=False),
+        "river_level_m": pa.Column(pl.Float64, nullable=True),
+        "precip_mm": pa.Column(pl.Float64, checks=pa.Check.ge(0.0), nullable=False),
+        # Estado antecedente (ventanas móviles)
+        "precip_acc_3d": pa.Column(pl.Float64, checks=pa.Check.ge(0.0), nullable=False),
+        "precip_acc_7d": pa.Column(pl.Float64, checks=pa.Check.ge(0.0), nullable=False),
+        "precip_acc_15d": pa.Column(pl.Float64, checks=pa.Check.ge(0.0), nullable=False),
+        "precip_acc_30d": pa.Column(pl.Float64, checks=pa.Check.ge(0.0), nullable=False),
+        "river_diff_24h": pa.Column(pl.Float64, nullable=True),
+        "river_diff_48h": pa.Column(pl.Float64, nullable=True),
+        "river_diff_7d": pa.Column(pl.Float64, nullable=True),
+        "river_roll_mean_7d": pa.Column(pl.Float64, nullable=True),
+        # Señal climática ENSO
+        "oni_index": pa.Column(pl.Float64, checks=pa.Check.in_range(-4.0, 4.0), nullable=True),
+        "oni_trend_90d": pa.Column(pl.Float64, nullable=True),
+        "is_el_nino": pa.Column(pl.Int8, checks=pa.Check.isin([0, 1]), nullable=False),
+    },
+    unique=["event_date", "station_id"],
+    coerce=True,
+)
