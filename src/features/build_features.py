@@ -3,6 +3,7 @@ import duckdb
 import numpy as np
 import polars as pl
 from src.ingestion.contracts import feature_store_schema
+from datetime import date
 
 DB_PATH = Path("data/flood_monitor.duckdb")
 
@@ -99,8 +100,14 @@ def build_inference_matrix(
     con: duckdb.DuckDBPyConnection, features_df: pl.DataFrame, issued_date: str | None = None
 ) -> pl.DataFrame:
     """Construye la matriz (station_id x horizon 1..15) para inferencia diaria."""
+
     if issued_date is None:
-        issued_date = con.execute("SELECT MAX(issued_date) FROM forecast_inputs").fetchone()[0]
+        issued_date_val = con.sql("SELECT MAX(issued_date) FROM forecast_inputs").fetchall()[0][0]
+    elif isinstance(issued_date, str):
+        issued_date_val = date.fromisoformat(issued_date)
+    else:
+        issued_date_val = issued_date
+
 
     fc_df = pl.from_arrow(
         con.execute(
@@ -114,7 +121,7 @@ def build_inference_matrix(
             WHERE issued_date = ?
             ORDER BY station_id, target_date
             """,
-            [issued_date],
+            [issued_date_val],
         ).to_arrow_table()
     )
 
@@ -132,7 +139,7 @@ def build_inference_matrix(
     )
 
     # Unir el estado de la cuenca en issued_date (t) con los 15 horizontes futuros
-    state_t = features_df.filter(pl.col("event_date") == pl.lit(issued_date).cast(pl.Date))
+    state_t = features_df.filter(pl.col("event_date") == pl.lit(issued_date_val))
     inference_df = fc_horizons.join(state_t, on="station_id", how="inner")
 
     return inference_df
