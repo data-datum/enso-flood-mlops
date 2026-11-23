@@ -1,17 +1,11 @@
 # ENSO & Paraná River 15-Day Probabilistic Flood Early-Warning MLOps Pipeline
 
 [![Daily ENSO Flood Forecast Pipeline](https://github.com/data-datum/enso-flood-mlops/actions/workflows/daily_forecast.yml/badge.svg)](https://github.com/data-datum/enso-flood-mlops/actions/workflows/daily_forecast.yml)
-
 ![Python 3.12](https://img.shields.io/badge/Python-3.12-blue.svg)
-
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg)
-
 ![LightGBM](https://img.shields.io/badge/LightGBM-Quantile-success.svg)
-
 ![DuckDB](https://img.shields.io/badge/DuckDB-Feature%20Store-FFF000.svg)
-
 ![MLflow](https://img.shields.io/badge/MLflow-Registry-0194E2.svg)
-
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)
 
 An end-to-end **MLOps & Operational Hydrology** system delivering **15-day multi-horizon probabilistic river-level forecasts** (`P10`, `P50`, `P90`) for key gauging stations along the Upper and Middle **Paraná River basin** in Argentina, dynamically coupled with the **El Niño–Southern Oscillation (ENSO / ONI)** climate regime.
@@ -68,6 +62,7 @@ This system bridges operational hydrology and production MLOps by:
 
 ## Repository Structure
 
+```text
 enso-flood-mlops/
 ├── .github/
 │   └── workflows/
@@ -100,7 +95,43 @@ enso-flood-mlops/
 ├── requirements.txt
 └── README.md
 
+```
 
+
+## Quickstart & Deployment
+
+### 1. Local Installation
+
+```text
+git clone [https://github.com/data-datum/enso-flood-mlops.git](https://github.com/data-datum/enso-flood-mlops.git)
+cd enso-flood-mlops
+python -m venv .venv
+source .venv/bin/activate  # On Windows PowerShell: .\.venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### 2. Run the Daily End-to-End Pipeline
+Executes daily ingestion, feature store update, retrospective shadow scoring, 30-day PSI drift monitoring, 15-day quantile inference, and alert evaluation:
+
+
+```text
+python -m src.flows.daily_pipeline
+```
+
+### 3. Launch the FastAPI Service
+
+
+
+```text
+uvicorn src.api.main:app --host 0.0.0.0 --port 8000
+```
+
+
+Swagger UI: http://127.0.0.1:8000/docs
+
+Latest Alerts JSON: http://127.0.0.1:8000/alerts/latest
+
+Prometheus Metrics: http://127.0.0.1:8000/metrics
 
 
 
