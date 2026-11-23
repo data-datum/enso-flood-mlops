@@ -1,11 +1,17 @@
 # ENSO & Paraná River 15-Day Probabilistic Flood Early-Warning MLOps Pipeline
 
 [![Daily ENSO Flood Forecast Pipeline](https://github.com/data-datum/enso-flood-mlops/actions/workflows/daily_forecast.yml/badge.svg)](https://github.com/data-datum/enso-flood-mlops/actions/workflows/daily_forecast.yml)
+
 ![Python 3.12](https://img.shields.io/badge/Python-3.12-blue.svg)
+
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg)
+
 ![LightGBM](https://img.shields.io/badge/LightGBM-Quantile-success.svg)
+
 ![DuckDB](https://img.shields.io/badge/DuckDB-Feature%20Store-FFF000.svg)
+
 ![MLflow](https://img.shields.io/badge/MLflow-Registry-0194E2.svg)
+
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)
 
 An end-to-end **MLOps & Operational Hydrology** system delivering **15-day multi-horizon probabilistic river-level forecasts** (`P10`, `P50`, `P90`) for key gauging stations along the Upper and Middle **Paraná River basin** in Argentina, dynamically coupled with the **El Niño–Southern Oscillation (ENSO / ONI)** climate regime.
@@ -55,3 +61,46 @@ This system bridges operational hydrology and production MLOps by:
                                      ├── GET /forecast/{station_id}
                                      ├── GET /alerts/latest
                                      └── GET /metrics (Prometheus)
+
+
+```
+
+
+## Repository Structure
+
+enso-flood-mlops/
+├── .github/
+│   └── workflows/
+│       └── daily_forecast.yml      # Automated daily cron execution (16:00 UTC)
+├── data/
+│   ├── parquet_backup/             # Partitioned historical backups
+│   ├── processed/                  # Processed training & feature datasets
+│   └── quarantine/                 # Data contract validation rejects
+├── src/
+│   ├── api/
+│   │   ├── __init__.py
+│   │   └── main.py                 # FastAPI service (/health, /forecast, /alerts/latest, /metrics)
+│   ├── features/
+│   │   └── build_features.py       # Polars/DuckDB feature engineering & 15d inference matrix
+│   ├── flows/
+│   │   └── daily_pipeline.py       # Unified daily end-to-end MLOps orchestrator
+│   ├── inference/
+│   │   ├── alerts.py               # ENSO-adaptive threshold logic & Telegram alert formatter
+│   │   └── predict_15d.py          # Multi-horizon P10/P50/P90 inference & flood probability
+│   ├── ingestion/
+│   │   ├── __init__.py
+│   │   ├── fetch_ina.py            # Instituto Nacional del Agua (INA) API connector
+│   │   └── ingest_daily.py         # Daily ingestion with operational forward-fill fallback
+│   └── models/
+│       ├── evaluate_shadow.py      # Retrospective evaluation & @shadow -> @champion promotion
+│       └── train.py                # Expanding-window LightGBM quantile model training
+├── .dockerignore
+├── .gitignore
+├── Dockerfile
+├── requirements.txt
+└── README.md
+
+
+
+
+
