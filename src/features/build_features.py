@@ -139,7 +139,12 @@ def build_inference_matrix(
     )
 
     # Unir el estado de la cuenca en issued_date (t) con los 15 horizontes futuros
-    state_t = features_df.filter(pl.col("event_date") == pl.lit(issued_date_val))
+    state_t = (
+        features_df.filter(pl.col("event_date") <= pl.lit(issued_date_val))
+        .sort(["station_id", "event_date"])
+        .group_by("station_id")
+        .last()
+    )
     inference_df = fc_horizons.join(state_t, on="station_id", how="inner")
 
     return inference_df
